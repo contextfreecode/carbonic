@@ -24,6 +24,11 @@ func y(vector: Vector3): float32 {.
     header: bullet,
     importcpp: "#.getY()".}
 
+func newTransform(): Transform {.
+    header: bullet,
+    importcpp: "btTransform()",
+    constructor.}
+
 proc origin(transform: Transform): var Vector3 {.
     header: bullet,
     importcpp: "#.getOrigin()".}
@@ -33,7 +38,7 @@ proc setIdentity(transform: Transform) {.
     importcpp: "#.setIdentity()".}
 
 proc main() =
-    let transform = Transform()
+    let transform = newTransform()
     transform.setIdentity()
     echo(fmt"{transform.origin.x}")
     transform.origin.x = 1.5
