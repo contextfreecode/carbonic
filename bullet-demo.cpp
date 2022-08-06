@@ -33,31 +33,21 @@ auto push_unique_and_borrow(std::vector<U>* vector, Args&&... args) -> T* {
 }
 
 struct DynamicsWorldStore {
-    std::unique_ptr<btDefaultCollisionConfiguration> collisionConfiguration =
-        std::make_unique<btDefaultCollisionConfiguration>();
-
-    std::unique_ptr<btCollisionDispatcher> dispatcher =
-        std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
-
-    std::unique_ptr<btDbvtBroadphase> overlappingPairCache =
-        std::make_unique<btDbvtBroadphase>();
-
-    std::unique_ptr<btSequentialImpulseConstraintSolver> solver =
-        std::make_unique<btSequentialImpulseConstraintSolver>();
-
-    std::unique_ptr<btDiscreteDynamicsWorld> world =
-        std::make_unique<btDiscreteDynamicsWorld>(
-            dispatcher.get(), overlappingPairCache.get(), solver.get(),
-            collisionConfiguration.get());
+    btDefaultCollisionConfiguration collisionConfiguration;
+    btCollisionDispatcher dispatcher{&collisionConfiguration};
+    btDbvtBroadphase overlappingPairCache;
+    btSequentialImpulseConstraintSolver solver;
+    btDiscreteDynamicsWorld world{&dispatcher, &overlappingPairCache, &solver,
+                                  &collisionConfiguration};
 
     ~DynamicsWorldStore() {
-        for (int i = world->getNumCollisionObjects() - 1; i >= 0; i--) {
-            btCollisionObject* obj = world->getCollisionObjectArray()[i];
+        for (int i = world.getNumCollisionObjects() - 1; i >= 0; i--) {
+            btCollisionObject* obj = world.getCollisionObjectArray()[i];
             btRigidBody* body = btRigidBody::upcast(obj);
             if (body && body->getMotionState()) {
                 delete body->getMotionState();
             }
-            world->removeCollisionObject(obj);
+            world.removeCollisionObject(obj);
             delete obj;
         }
     }
@@ -84,9 +74,9 @@ auto init_body(const InitBodyArgs& init) -> btRigidBody* {
     return new btRigidBody(rbInfo);
 }
 
-auto print_all(btDiscreteDynamicsWorld* world) -> void {
-    for (int i = world->getNumCollisionObjects() - 1; i >= 0; i--) {
-        btCollisionObject* obj = world->getCollisionObjectArray()[i];
+auto print_all(const btDiscreteDynamicsWorld& world) -> void {
+    for (int i = world.getNumCollisionObjects() - 1; i >= 0; i--) {
+        btCollisionObject* obj = world.getCollisionObjectArray()[i];
         btRigidBody* body = btRigidBody::upcast(obj);
         btTransform trans;
         if (body && body->getMotionState()) {
@@ -95,32 +85,31 @@ auto print_all(btDiscreteDynamicsWorld* world) -> void {
             trans = obj->getWorldTransform();
         }
         printf("world pos object %d = %f,%f,%f\n", i,
-                float(trans.getOrigin().getX()),
-                float(trans.getOrigin().getY()),
-                float(trans.getOrigin().getZ()));
+               float(trans.getOrigin().getX()), float(trans.getOrigin().getY()),
+               float(trans.getOrigin().getZ()));
     }
 }
 
 auto main() -> int {
     DynamicsWorldStore dynamicsWorldStore;
-    auto world = dynamicsWorldStore.world.get();
-    world->setGravity(btVector3(0, -10, 0));
+    auto& world = dynamicsWorldStore.world;
+    world.setGravity(btVector3(0, -10, 0));
     // Track shapes separately for potential reuse.
     std::vector<std::unique_ptr<btCollisionShape>> shapes;
-    world->addRigidBody(init_body({
-        .mass = 0, // static ground
+    world.addRigidBody(init_body({
+        .mass = 0,  // static ground
         .origin = {0, -56, 0},
-        .shape = push_unique_and_borrow<btBoxShape>(&shapes,
-                                                    btVector3(50, 50, 50)),
+        .shape =
+            push_unique_and_borrow<btBoxShape>(&shapes, btVector3(50, 50, 50)),
     }));
-    world->addRigidBody(init_body({
-        .mass = 1, // dynamic sphere
+    world.addRigidBody(init_body({
+        .mass = 1,  // dynamic sphere
         .origin = {2, 10, 0},
         .shape = push_unique_and_borrow<btSphereShape>(&shapes, 1),
     }));
     /// Run simulation.
     for (int i = 0; i < 150; i++) {
-        world->stepSimulation(1.f / 60.f, 10);
+        world.stepSimulation(1.f / 60.f, 10);
         print_all(world);
     }
 }

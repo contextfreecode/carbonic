@@ -7,6 +7,6 @@ nim cpp \
     --passL:$BULLET_LIB/BulletDynamics/libBulletDynamics.a \
     --passL:$BULLET_LIB/BulletCollision/libBulletCollision.a \
     --passL:$BULLET_LIB/LinearMath/libLinearMath.a \
-    -d:release \
+    -d:release --mm:orc \
     bullet_demo.nim && \
 valgrind ./bullet_demo
