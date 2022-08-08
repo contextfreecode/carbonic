@@ -1,0 +1,36 @@
+import extern "btBulletDynamicsCommon.h" {
+    extern struct btDefaultCollisionConfiguration {
+        public function btDefaultCollisionConfiguration() -> btDefaultCollisionConfiguration
+    }
+    extern struct btCollisionDispatcher {
+        public function btCollisionDispatcher(
+            anon collisionConfiguration: raw btDefaultCollisionConfiguration
+        ) -> btCollisionDispatcher
+    }
+}
+
+import extern "vector" {
+    namespace std {
+        extern struct vector<T> {
+            function vector<T>() -> vector<T>
+            function empty(this) -> bool
+        }
+    }
+}
+
+struct DynamicsWorldStore {
+    collisionConfiguration: btDefaultCollisionConfiguration
+    dispatcher: btCollisionDispatcher
+}
+
+function main() {
+    mut collisionConfiguration = btDefaultCollisionConfiguration()
+    let dynamicsWorldStore = DynamicsWorldStore(
+        collisionConfiguration: btDefaultCollisionConfiguration(),
+        dispatcher: btCollisionDispatcher(&raw collisionConfiguration),
+    )
+    let v = std::vector<i32>()
+    if v.empty() {
+        println("PASS")
+    }
+}
