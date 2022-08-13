@@ -1,0 +1,41 @@
+import extern "btBulletDynamicsCommon.h" {
+    extern struct btDefaultCollisionConfiguration {
+        public function btDefaultCollisionConfiguration() -> btDefaultCollisionConfiguration
+    }
+
+    extern struct btCollisionDispatcher {
+        public function btCollisionDispatcher(
+            anon collision_configuration: raw btDefaultCollisionConfiguration
+        ) -> btCollisionDispatcher
+    }
+
+    extern struct btDbvtBroadphase {
+        public function btDbvtBroadphase() -> btDbvtBroadphase
+    }
+
+    extern struct btSequentialImpulseConstraintSolver {
+        public function btSequentialImpulseConstraintSolver() -> btSequentialImpulseConstraintSolver
+    }
+
+    extern struct btAlignedObjectArray<T> {
+        function at(this, anon n: i32) -> T
+    }
+
+    extern struct btCollisionObject { }
+
+    extern struct btRigidBody {
+        function upcast(anon obj: raw btCollisionObject) -> raw btRigidBody
+    }
+
+    extern struct btDiscreteDynamicsWorld {
+        public function btDiscreteDynamicsWorld(
+            dispatcher: raw btCollisionDispatcher, overlapping_pair_cache: raw btDbvtBroadphase, solver: raw btSequentialImpulseConstraintSolver, collision_configuration: raw btDefaultCollisionConfiguration
+        ) -> btDiscreteDynamicsWorld
+
+        public function getCollisionObjectArray(this) -> &btAlignedObjectArray<raw btCollisionObject>
+
+        public function getNumCollisionObjects(this) -> i32
+
+        public function removeCollisionObject(mut this, anon obj: raw btCollisionObject)
+    }
+}

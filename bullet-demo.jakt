@@ -1,37 +1,10 @@
-import extern "btBulletDynamicsCommon.h" {
-    extern struct btDefaultCollisionConfiguration {
-        public function btDefaultCollisionConfiguration() -> btDefaultCollisionConfiguration
-    }
-
-    extern struct btCollisionDispatcher {
-        public function btCollisionDispatcher(
-            anon collisionConfiguration: raw btDefaultCollisionConfiguration
-        ) -> btCollisionDispatcher
-    }
-
-    extern struct btDbvtBroadphase {
-        public function btDbvtBroadphase() -> btDbvtBroadphase
-    }
-
-    extern struct btSequentialImpulseConstraintSolver {
-        public function btSequentialImpulseConstraintSolver() -> btSequentialImpulseConstraintSolver
-    }
-
-    extern struct btAlignedObjectArray<T> {
-        function at(this, anon n: i32) -> T
-    }
-
-    extern struct btCollisionObject { }
-
-    extern struct btDiscreteDynamicsWorld {
-        public function btDiscreteDynamicsWorld(
-            dispatcher: raw btCollisionDispatcher, overlappingPairCache: raw btDbvtBroadphase, solver: raw btSequentialImpulseConstraintSolver, collisionConfiguration: raw btDefaultCollisionConfiguration
-        ) -> btDiscreteDynamicsWorld
-
-        public function getCollisionObjectArray(this) -> &btAlignedObjectArray<raw btCollisionObject>
-
-        public function getNumCollisionObjects(this) -> i32
-    }
+import bullet {
+    btDefaultCollisionConfiguration,
+    btCollisionDispatcher,
+    btDbvtBroadphase,
+    btSequentialImpulseConstraintSolver,
+    btDiscreteDynamicsWorld,
+    btRigidBody,
 }
 
 import extern "vector" {
@@ -44,23 +17,23 @@ import extern "vector" {
 }
 
 // class DynamicsWorldStore {
-//     collisionConfiguration: btDefaultCollisionConfiguration
+//     collision_configuration: btDefaultCollisionConfiguration
 //     dispatcher: btCollisionDispatcher
 // }
 
 function main() {
-    mut collisionConfiguration = btDefaultCollisionConfiguration()
-    mut dispatcher = btCollisionDispatcher(&raw collisionConfiguration)
-    mut overlappingPairCache = btDbvtBroadphase()
+    mut collision_configuration = btDefaultCollisionConfiguration()
+    mut dispatcher = btCollisionDispatcher(&raw collision_configuration)
+    mut overlapping_pair_cache = btDbvtBroadphase()
     mut solver = btSequentialImpulseConstraintSolver()
     mut world = btDiscreteDynamicsWorld(
         dispatcher: &raw dispatcher,
-        overlappingPairCache: &raw overlappingPairCache,
+        overlapping_pair_cache: &raw overlapping_pair_cache,
         solver: &raw solver,
-        collisionConfiguration: &raw collisionConfiguration,
+        collision_configuration: &raw collision_configuration,
     )
     defer {
-        cleanDynamicsWorld(&world)
+        cleanDynamicsWorld(&mut world)
     }
     let v = std::vector<i32>()
     if v.empty() {
@@ -70,18 +43,19 @@ function main() {
     println("{}", x[1])
 }
 
-function cleanDynamicsWorld(anon world: &btDiscreteDynamicsWorld) {
+function cleanDynamicsWorld(anon world: &mut btDiscreteDynamicsWorld) {
     let num = world.getNumCollisionObjects()
     for i in 0..num {
-        let obj = world.getCollisionObjectArray().at(num - i - 1)
+        mut obj = world.getCollisionObjectArray().at(num - i - 1)
+        let body = btRigidBody::upcast(obj)
+        unsafe {
+            cpp {
+                "if (body && body->getMotionState()) {"
+                "    delete body->getMotionState();"
+                "}"
+            }
+        }
+        world.removeCollisionObject(obj);
+        unsafe { cpp { "delete obj;" } }
     }
-    // for (int i = world.getNumCollisionObjects() - 1; i >= 0; i--) {
-    //     btCollisionObject* obj = world.getCollisionObjectArray()[i];
-    //     btRigidBody* body = btRigidBody::upcast(obj);
-    //     if (body && body->getMotionState()) {
-    //         delete body->getMotionState();
-    //     }
-    //     world.removeCollisionObject(obj);
-    //     delete obj;
-    // }
 }
