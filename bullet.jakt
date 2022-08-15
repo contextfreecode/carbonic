@@ -38,4 +38,22 @@ import extern "btBulletDynamicsCommon.h" {
 
         public function removeCollisionObject(mut this, anon obj: raw btCollisionObject)
     }
+
+    extern struct btCollisionShape { }
+
+    extern struct btVector3 {
+        public function btVector3(anon x: f32, anon y: f32, anon z: f32) -> btVector3
+    }
+
+    extern struct btTransform {
+        public function btTransform() -> btTransform
+
+        public function setIdentity(mut this)
+
+        public function setOrigin(mut this, anon origin: &btVector3)
+    }
+
+    extern struct btBoxShape {
+        public function btBoxShape(anon x: f32, anon y: f32, anon z: f32) -> btBoxShape
+    }
 }

@@ -1,10 +1,13 @@
 import bullet {
-    btDefaultCollisionConfiguration,
     btCollisionDispatcher,
+    btCollisionShape,
     btDbvtBroadphase,
-    btSequentialImpulseConstraintSolver,
+    btDefaultCollisionConfiguration,
     btDiscreteDynamicsWorld,
+    btSequentialImpulseConstraintSolver,
     btRigidBody,
+    btTransform,
+    btVector3,
 }
 
 import extern "vector" {
@@ -33,7 +36,7 @@ function main() {
         collision_configuration: &raw collision_configuration,
     )
     defer {
-        cleanDynamicsWorld(&mut world)
+        clean_dynamics_world(&mut world)
     }
     let v = std::vector<i32>()
     if v.empty() {
@@ -43,7 +46,7 @@ function main() {
     println("{}", x[1])
 }
 
-function cleanDynamicsWorld(anon world: &mut btDiscreteDynamicsWorld) {
+function clean_dynamics_world(anon world: &mut btDiscreteDynamicsWorld) {
     let num = world.getNumCollisionObjects()
     for i in 0..num {
         mut obj = world.getCollisionObjectArray().at(num - i - 1)
@@ -58,4 +61,17 @@ function cleanDynamicsWorld(anon world: &mut btDiscreteDynamicsWorld) {
         world.removeCollisionObject(obj);
         unsafe { cpp { "delete obj;" } }
     }
+}
+
+function init_body(mass: f32, origin: btVector3, shape: &mut btCollisionShape) {
+    mut transform = btTransform()
+    transform.setIdentity()
+    transform.setOrigin(&origin)
+    let isDynamic = mass != 0f32
+    let localInertia = btVector3(0f32, 0f32, 0f32)
+    // if (isDynamic) init.shape->calculateLocalInertia(init.mass, localInertia);
+    // btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
+    // btRigidBody::btRigidBodyConstructionInfo rbInfo(init.mass, myMotionState,
+    //                                                 init.shape, localInertia);
+    // return new btRigidBody(rbInfo);
 }
