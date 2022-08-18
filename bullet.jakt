@@ -32,14 +32,14 @@ import extern "btBulletDynamicsCommon.h" {
             dispatcher: raw btCollisionDispatcher, overlapping_pair_cache: raw btDbvtBroadphase, solver: raw btSequentialImpulseConstraintSolver, collision_configuration: raw btDefaultCollisionConfiguration
         ) -> btDiscreteDynamicsWorld
 
+        public function addRigidBody(mut this, body: raw btRigidBody)
+
         public function getCollisionObjectArray(this) -> &btAlignedObjectArray<raw btCollisionObject>
 
         public function getNumCollisionObjects(this) -> i32
 
         public function removeCollisionObject(mut this, anon obj: raw btCollisionObject)
     }
-
-    extern struct btCollisionShape { }
 
     extern struct btVector3 {
         public function btVector3(anon x: f32, anon y: f32, anon z: f32) -> btVector3
@@ -53,7 +53,19 @@ import extern "btBulletDynamicsCommon.h" {
         public function setOrigin(mut this, anon origin: &btVector3)
     }
 
+    extern struct btCollisionShape {
+        public function calculateLocalInertia(this, mass: f32, local_inertia: &mut btVector3)
+    }
+
     extern struct btBoxShape {
-        public function btBoxShape(anon x: f32, anon y: f32, anon z: f32) -> btBoxShape
+        public function btBoxShape(anon half_extents: btVector3) -> btBoxShape
+    }
+
+    extern struct btSphereShape {
+        public function btSphereShape(anon radius: f32) -> btSphereShape
+    }
+
+    extern struct btDefaultMotionState {
+        public function btDefaultMotionState(anon transform: &btTransform) -> btDefaultMotionState
     }
 }

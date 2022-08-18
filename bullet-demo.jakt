@@ -1,14 +1,25 @@
 import bullet {
+    btBoxShape,
     btCollisionDispatcher,
     btCollisionShape,
     btDbvtBroadphase,
     btDefaultCollisionConfiguration,
+    btDefaultMotionState,
     btDiscreteDynamicsWorld,
-    btSequentialImpulseConstraintSolver,
     btRigidBody,
+    btSequentialImpulseConstraintSolver,
+    btSphereShape,
     btTransform,
     btVector3,
 }
+
+// import extern "memory" {
+//     namespace std {
+//         extern struct unique_ptr<T> {
+//             function release(mut this) -> raw T
+//         }
+//     }
+// }
 
 import extern "vector" {
     namespace std {
@@ -17,6 +28,10 @@ import extern "vector" {
             function empty(this) -> bool
         }
     }
+}
+
+import extern "bullet-demo-support.hpp" {
+    extern function cast<T, U>(anon u: raw U) -> raw T
 }
 
 // class DynamicsWorldStore {
@@ -38,6 +53,14 @@ function main() {
     defer {
         clean_dynamics_world(&mut world)
     }
+    mut ground_shape = btBoxShape(btVector3(50f32, 50f32, 50f32))
+    init_body(
+        world: &mut world,
+        shape: cast<btCollisionShape>(&raw ground_shape),
+        mass: 0f32,
+        origin: btVector3(0f32, -56f32, 0f32),
+    )
+    mut sphere_shape = btSphereShape(1f32)
     let v = std::vector<i32>()
     if v.empty() {
         println("PASS")
@@ -63,15 +86,24 @@ function clean_dynamics_world(anon world: &mut btDiscreteDynamicsWorld) {
     }
 }
 
-function init_body(mass: f32, origin: btVector3, shape: &mut btCollisionShape) {
+function init_body(world: &mut btDiscreteDynamicsWorld, shape: raw btCollisionShape, mass: f32, origin: btVector3) {
     mut transform = btTransform()
     transform.setIdentity()
     transform.setOrigin(&origin)
-    let isDynamic = mass != 0f32
-    let localInertia = btVector3(0f32, 0f32, 0f32)
-    // if (isDynamic) init.shape->calculateLocalInertia(init.mass, localInertia);
-    // btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
-    // btRigidBody::btRigidBodyConstructionInfo rbInfo(init.mass, myMotionState,
-    //                                                 init.shape, localInertia);
-    // return new btRigidBody(rbInfo);
+    let is_dynamic = mass != 0f32
+    mut local_inertia = btVector3(0f32, 0f32, 0f32)
+    if (is_dynamic) {
+        unsafe {
+            (*shape).calculateLocalInertia(mass, &mut local_inertia)
+        }
+    }
+    unsafe {
+        cpp {
+            "auto motionState = new btDefaultMotionState(transform);"
+            "btRigidBody::btRigidBodyConstructionInfo rbInfo("
+            "    mass, motionState, const_cast<btCollisionShape*>(shape),"
+            "    local_inertia);"
+            "world.addRigidBody(new btRigidBody(rbInfo));"
+        }
+    }
 }
