@@ -39,14 +39,24 @@ import extern "btBulletDynamicsCommon.h" {
         public function getNumCollisionObjects(this) -> i32
 
         public function removeCollisionObject(mut this, anon obj: raw btCollisionObject)
+
+        public function stepSimulation(mut this, time_step: f32, max_sub_steps: i32) -> i32
     }
 
     extern struct btVector3 {
         public function btVector3(anon x: f32, anon y: f32, anon z: f32) -> btVector3
+
+        public function getX(this) -> f32
+
+        public function getY(this) -> f32
+
+        public function getZ(this) -> f32
     }
 
     extern struct btTransform {
         public function btTransform() -> btTransform
+
+        public function getOrigin(this) -> btVector3
 
         public function setIdentity(mut this)
 

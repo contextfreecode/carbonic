@@ -75,7 +75,7 @@ auto init_body(const InitBodyArgs& init) -> btRigidBody* {
 }
 
 auto print_all(const btDiscreteDynamicsWorld& world) -> void {
-    for (int i = world.getNumCollisionObjects() - 1; i >= 0; i--) {
+    for (int i = 0; i < world.getNumCollisionObjects(); i += 1) {
         btCollisionObject* obj = world.getCollisionObjectArray()[i];
         btRigidBody* body = btRigidBody::upcast(obj);
         btTransform trans;
@@ -84,7 +84,7 @@ auto print_all(const btDiscreteDynamicsWorld& world) -> void {
         } else {
             trans = obj->getWorldTransform();
         }
-        printf("world pos object %d = %f,%f,%f\n", i,
+        printf("world pos object %d = %f %f %f\n", i,
                float(trans.getOrigin().getX()), float(trans.getOrigin().getY()),
                float(trans.getOrigin().getZ()));
     }
@@ -108,7 +108,7 @@ auto main() -> int {
         .shape = push_unique_and_borrow<btSphereShape>(&shapes, 1),
     }));
     /// Run simulation.
-    for (int i = 0; i < 150; i++) {
+    for (int i = 0; i < 10; i++) {
         world.stepSimulation(1.f / 60.f, 10);
         print_all(world);
     }

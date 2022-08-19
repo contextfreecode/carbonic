@@ -61,12 +61,22 @@ function main() {
         origin: btVector3(0f32, -56f32, 0f32),
     )
     mut sphere_shape = btSphereShape(1f32)
-    let v = std::vector<i32>()
-    if v.empty() {
-        println("PASS")
+    init_body(
+        world: &mut world,
+        shape: cast<btCollisionShape>(&raw sphere_shape),
+        mass: 1f32,
+        origin: btVector3(2f32, 10f32, 0f32),
+    )
+    for i in 0..10 {
+        world.stepSimulation(time_step: 1f32 / 60f32, max_sub_steps: 10)
+        print_all(&world)
     }
-    let x = [1, 2, 3]
-    println("{}", x[1])
+    // let v = std::vector<i32>()
+    // if v.empty() {
+    //     println("PASS")
+    // }
+    // let x = [1, 2, 3]
+    // println("{}", x[1])
 }
 
 function clean_dynamics_world(anon world: &mut btDiscreteDynamicsWorld) {
@@ -105,5 +115,30 @@ function init_body(world: &mut btDiscreteDynamicsWorld, shape: raw btCollisionSh
             "    local_inertia);"
             "world.addRigidBody(new btRigidBody(rbInfo));"
         }
+    }
+}
+
+function print_all(world: &btDiscreteDynamicsWorld) {
+    for i in 0..world.getNumCollisionObjects() {
+        let obj = world.getCollisionObjectArray().at(i)
+        let body = btRigidBody::upcast(obj)
+        mut trans = btTransform()
+        unsafe {
+            cpp {
+                "if (body && body->getMotionState()) {"
+                "    body->getMotionState()->getWorldTransform(trans);"
+                "} else {"
+                "    trans = obj->getWorldTransform();"
+                "}"
+            }
+        }
+        println(
+            "world pos object {} = {},{},{}",
+            i,
+            trans.getOrigin().getX(),
+            trans.getOrigin().getY(),
+            trans.getOrigin().getZ(),
+        )
+        // println("hi {}", 5)
     }
 }

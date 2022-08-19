@@ -9,6 +9,8 @@ static void init_body(btDiscreteDynamicsWorld& world, const btCollisionShape* sh
 
 static void clean_dynamics_world(btDiscreteDynamicsWorld& world);
 
+static void print_all(btDiscreteDynamicsWorld const& world);
+
 namespace bullet {
 }
 static void init_body(btDiscreteDynamicsWorld& world,const btCollisionShape* shape,const f32 mass,const btVector3 origin) {
@@ -62,6 +64,33 @@ delete obj;
 }
 }
 
+static void print_all(btDiscreteDynamicsWorld const& world) {
+{
+{
+Range<i32> _magic = (Range<i32>{static_cast<i32>(static_cast<i32>(0)),static_cast<i32>((((world)).getNumCollisionObjects()))});
+for (;;){
+Optional<i32> _magic_value = ((_magic).next());
+if ((!((_magic_value).has_value()))){
+break;
+}
+i32 i = (_magic_value.value());
+{
+const btCollisionObject* obj = ((((((world)).getCollisionObjectArray()))).at(i));
+const btRigidBody* body = btRigidBody::upcast(obj);
+btTransform trans = btTransform();
+{
+if (body && body->getMotionState()) {    body->getMotionState()->getWorldTransform(trans);} else {    trans = obj->getWorldTransform();}
+}
+
+outln(String("world pos object {} = {} {} {}"),i,((((trans).getOrigin())).getX()),((((trans).getOrigin())).getY()),((((trans).getOrigin())).getZ()));
+}
+
+}
+}
+
+}
+}
+
 ErrorOr<int> main(Array<String>) {
 {
 btDefaultCollisionConfiguration collision_configuration = btDefaultCollisionConfiguration();
@@ -81,12 +110,23 @@ clean_dynamics_world((world));
 btBoxShape ground_shape = btBoxShape(btVector3(static_cast<f32>(50),static_cast<f32>(50),static_cast<f32>(50)));
 init_body((world),cast<btCollisionShape, btBoxShape>((&ground_shape)),static_cast<f32>(0),btVector3(static_cast<f32>(0),(-static_cast<f32>(56)),static_cast<f32>(0)));
 btSphereShape sphere_shape = btSphereShape(static_cast<f32>(1));
-const std::vector<i32> v = std::vector<i32>();
-if (((v).empty())){
-outln(String("PASS"));
+init_body((world),cast<btCollisionShape, btSphereShape>((&sphere_shape)),static_cast<f32>(1),btVector3(static_cast<f32>(2),static_cast<f32>(10),static_cast<f32>(0)));
+{
+Range<i64> _magic = (Range<i64>{static_cast<i64>(static_cast<i64>(0LL)),static_cast<i64>(static_cast<i64>(10LL))});
+for (;;){
+Optional<i64> _magic_value = ((_magic).next());
+if ((!((_magic_value).has_value()))){
+break;
 }
-const Array<i64> x = (TRY((Array<i64>::create_with({static_cast<i64>(1LL), static_cast<i64>(2LL), static_cast<i64>(3LL)}))));
-outln(String("{}"),((x)[static_cast<i64>(1LL)]));
+i64 i = (_magic_value.value());
+{
+((world).stepSimulation((static_cast<f32>(1) / static_cast<f32>(60)),static_cast<i32>(10)));
+print_all((world));
+}
+
+}
+}
+
 }
 return 0;
 }
