@@ -28,15 +28,19 @@ import std/strformat
 #         )
 #     )
 
+proc delete*(obj: ptr auto) {.importcpp: "delete #".}
+
+proc new*[T](t: T): ptr T {.importcpp: "(new '*0#@)".}
+
 proc cleanDynamicsWorld(world: var DiscreteDynamicsWorld) =
     for i in countdown(world.numCollisionObjects - 1, 0):
         var
             obj = world.collisionObjectArray[i]
             body = rigidBodyUpcast(obj)
         if body != nil and body.motionState != nil:
-            body.motionState.cdelete
+            body.motionState.delete
         world.removeCollisionObject(obj)
-        obj.cdelete
+        obj.delete
 
 proc initBody(
     mass: float32, origin: Vector3, shape: var CollisionShape
@@ -49,17 +53,17 @@ proc initBody(
     let isDynamic = mass != 0
     if isDynamic:
         shape.calculateLocalInertia(mass = mass, localInertia = localInertia)
-    var motionState = makeDefaultMotionState(transform).cnew
+    var motionState = makeDefaultMotionState(transform).new
     let rbInfo = makeRigidBodyConstructionInfo(
         mass = mass,
         motionState = motionState,
         shape = unsafeAddr shape,
         localInertia = localInertia,
     )
-    makeRigidBody(rbInfo).cnew
+    makeRigidBody(rbInfo).new
 
 proc printAll(world: var DiscreteDynamicsWorld) =
-    for i in 1..world.numCollisionObjects:
+    for i in 0..<world.numCollisionObjects:
         let
             obj = world.collisionObjectArray[i]
             body = rigidBodyUpcast(obj)

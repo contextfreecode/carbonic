@@ -68,8 +68,8 @@ auto init_body(const InitBodyArgs& init) -> btRigidBody* {
     if (isDynamic) init.shape->calculateLocalInertia(init.mass, localInertia);
     // Using motionstate provides interpolation capabilities and only
     // synchronizes 'active' objects.
-    btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(init.mass, myMotionState,
+    btDefaultMotionState* motionState = new btDefaultMotionState(transform);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(init.mass, motionState,
                                                     init.shape, localInertia);
     return new btRigidBody(rbInfo);
 }

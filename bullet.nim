@@ -57,10 +57,6 @@ type
 
     Vector3* {.header: bullet, importcpp: "btVector3".} = object
 
-proc cdelete*(obj: ptr auto) {.importcpp: "delete #".}
-
-proc cnew*[T](t: T): ptr T {.importcpp: "(new '*0#@)".}
-
 proc `[]`*[T](this: var AlignedObjectArray[T], n: int): var T {.
     header: bullet,
     importcpp: "#[#]".}
