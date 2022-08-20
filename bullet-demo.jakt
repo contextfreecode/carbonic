@@ -30,7 +30,7 @@ import extern "vector" {
     }
 }
 
-import extern "bullet-demo-support.hpp" {
+import extern "bullet-demo-support-jakt.hpp" {
     extern function cast<T, U>(anon u: raw U) -> raw T
 }
 

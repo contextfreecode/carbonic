@@ -1,7 +1,7 @@
 #include <lib.h>
 #include <btBulletDynamicsCommon.h>
 #include <vector>
-#include <bullet-demo-support.hpp>
+#include <bullet-demo-support-jakt.hpp>
 namespace Jakt {
 namespace bullet {
 }
