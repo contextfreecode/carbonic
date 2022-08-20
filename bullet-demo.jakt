@@ -133,7 +133,7 @@ function print_all(world: &btDiscreteDynamicsWorld) {
             }
         }
         println(
-            "world pos object {} = {},{},{}",
+            "world pos object {} = {} {} {}",
             i,
             trans.getOrigin().getX(),
             trans.getOrigin().getY(),
