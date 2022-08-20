@@ -21,44 +21,80 @@ import std/strformat
 #         overlappingPairCache: overlappingPairCache,
 #         solver: solver,
 #         world: makeDiscreteDynamicsWorld(
-#             unsafeAddr collisionConfiguration,
 #             unsafeAddr dispatcher,
 #             unsafeAddr overlappingPairCache,
 #             unsafeAddr solver,
+#             unsafeAddr collisionConfiguration,
 #         )
 #     )
 
 proc cleanDynamicsWorld(world: var DiscreteDynamicsWorld) =
     for i in countdown(world.numCollisionObjects - 1, 0):
         var
-            obj = world.collisionObjectArray()[i]
+            obj = world.collisionObjectArray[i]
             body = rigidBodyUpcast(obj)
         if body != nil and body.motionState != nil:
             body.motionState.cdelete
         world.removeCollisionObject(obj)
         obj.cdelete
 
+proc initBody(
+    mass: float32, origin: Vector3, shape: var CollisionShape
+): ptr RigidBody =
+    var
+        localInertia = makeVector3(0, 0, 0)
+        transform = makeTransform()
+    transform.setIdentity()
+    transform.origin = origin
+    let isDynamic = mass != 0
+    if isDynamic:
+        shape.calculateLocalInertia(mass = mass, localInertia = localInertia)
+    var motionState = makeDefaultMotionState(transform).cnew
+    let rbInfo = makeRigidBodyConstructionInfo(
+        mass = mass,
+        motionState = motionState,
+        shape = unsafeAddr shape,
+        localInertia = localInertia,
+    )
+    makeRigidBody(rbInfo).cnew
+
+proc printAll(world: var DiscreteDynamicsWorld) =
+    for i in 1..world.numCollisionObjects:
+        let
+            obj = world.collisionObjectArray[i]
+            body = rigidBodyUpcast(obj)
+        var transform = makeTransform()
+        if body != nil and body.motionState != nil:
+            body.motionState.getWorldTransform(transform)
+        else:
+            transform = obj.worldTransform
+        let origin = transform.origin
+        echo(fmt"world pos object {i} = {origin.x} {origin.y} {origin.z}")
+
 proc main() =
-    # let dynamicsWorldStore = makeDynamicsWorldStore()
-    # discard dynamicsWorldStore.world
     var
         collisionConfiguration = makeDefaultCollisionConfiguration()
         dispatcher = makeCollisionDispatcher(unsafeAddr collisionConfiguration)
         overlappingPairCache = makeDbvtBroadphase()
         solver = SequentialImpulseConstraintSolver()
         world = makeDiscreteDynamicsWorld(
-            unsafeAddr dispatcher,
-            unsafeAddr overlappingPairCache,
-            unsafeAddr solver,
-            unsafeAddr collisionConfiguration,
+            dispatcher = unsafeAddr dispatcher,
+            overlappingPairCache = unsafeAddr overlappingPairCache,
+            solver = unsafeAddr solver,
+            collisionConfiguration = unsafeAddr collisionConfiguration,
         )
     defer: cleanDynamicsWorld(world)
-    let transform = makeTransform()
-    transform.setIdentity()
-    echo(fmt"{transform.origin.x}")
-    transform.origin.x = 1.5
-    echo(fmt"{transform.origin.x}")
-    let origin = makeVector3(1, 2, 3)
-    echo(fmt"{origin.y}")
+    var
+        groundShape = makeBoxShape(makeVector3(50, 50, 50))
+        sphereShape = makeSphereShape(1)
+    world.addRigidBody(
+        initBody(mass = 0, origin = makeVector3(0, -56, 0), shape = groundShape)
+    )
+    world.addRigidBody(
+        initBody(mass = 1, origin = makeVector3(2, 10, 0), shape = sphereShape)
+    )
+    for i in 1..10:
+        world.stepSimulation(1.0 / 60.0, 10)
+        printAll(world)
 
 main()

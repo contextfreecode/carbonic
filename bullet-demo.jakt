@@ -71,12 +71,6 @@ function main() {
         world.stepSimulation(time_step: 1f32 / 60f32, max_sub_steps: 10)
         print_all(&world)
     }
-    // let v = std::vector<i32>()
-    // if v.empty() {
-    //     println("PASS")
-    // }
-    // let x = [1, 2, 3]
-    // println("{}", x[1])
 }
 
 function clean_dynamics_world(anon world: &mut btDiscreteDynamicsWorld) {
@@ -105,6 +99,7 @@ function init_body(world: &mut btDiscreteDynamicsWorld, shape: raw btCollisionSh
     if (is_dynamic) {
         unsafe {
             (*shape).calculateLocalInertia(mass, &mut local_inertia)
+            // (*shape).calculateLocalInertia(mass, &mut local_inertia2)
         }
     }
     unsafe {
