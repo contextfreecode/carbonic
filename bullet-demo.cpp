@@ -82,9 +82,9 @@ auto print_all(const btDiscreteDynamicsWorld& world) -> void {
 auto main() -> int {
     DynamicsWorldStore dynamicsWorldStore;
     auto& world = dynamicsWorldStore.world;
-    world.setGravity(btVector3(0, -10, 0));
+    world.setGravity({0, -10, 0});
     // Track shapes separately for potential reuse.
-    auto groundShape = btBoxShape(btVector3(50, 50, 50));
+    auto groundShape = btBoxShape({0, 50, 50});
     auto sphereShape = btSphereShape(1);
     world.addRigidBody(init_body({
         .mass = 0,
