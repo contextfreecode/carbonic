@@ -18,13 +18,13 @@ import extern "btBulletDynamicsCommon.h" {
     }
 
     extern struct btAlignedObjectArray<T> {
-        function at(this, anon n: i32) -> T
+        public function at(this, anon n: i32) -> T
     }
 
     extern struct btCollisionObject { }
 
     extern struct btRigidBody {
-        function upcast(anon obj: raw btCollisionObject) -> raw btRigidBody
+        public function upcast(anon obj: raw btCollisionObject) -> raw btRigidBody
     }
 
     extern struct btDiscreteDynamicsWorld {

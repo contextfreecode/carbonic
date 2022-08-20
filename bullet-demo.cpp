@@ -19,18 +19,7 @@ misrepresented as being the original software.
 
 #include <stdio.h>
 
-#include <memory>
-#include <vector>
-
 #include "btBulletDynamicsCommon.h"
-
-template <class T, class U, class... Args>
-auto push_unique_and_borrow(std::vector<U>* vector, Args&&... args) -> T* {
-    auto store = std::make_unique<T>(std::forward<Args>(args)...);
-    auto borrow = store.get();
-    vector->push_back(std::move(store));
-    return borrow;
-}
 
 struct DynamicsWorldStore {
     btDefaultCollisionConfiguration collisionConfiguration;
@@ -95,17 +84,17 @@ auto main() -> int {
     auto& world = dynamicsWorldStore.world;
     world.setGravity(btVector3(0, -10, 0));
     // Track shapes separately for potential reuse.
-    std::vector<std::unique_ptr<btCollisionShape>> shapes;
+    auto groundShape = btBoxShape(btVector3(50, 50, 50));
+    auto sphereShape = btSphereShape(1);
     world.addRigidBody(init_body({
-        .mass = 0,  // static ground
+        .mass = 0,
         .origin = {0, -56, 0},
-        .shape =
-            push_unique_and_borrow<btBoxShape>(&shapes, btVector3(50, 50, 50)),
+        .shape = &groundShape,
     }));
     world.addRigidBody(init_body({
-        .mass = 1,  // dynamic sphere
+        .mass = 1,
         .origin = {2, 10, 0},
-        .shape = push_unique_and_borrow<btSphereShape>(&shapes, 1),
+        .shape = &sphereShape,
     }));
     /// Run simulation.
     for (int i = 0; i < 10; i++) {
