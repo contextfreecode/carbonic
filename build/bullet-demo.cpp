@@ -112,7 +112,7 @@ init_body((world),cast<btCollisionShape, btBoxShape>((&ground_shape)),static_cas
 btSphereShape sphere_shape = btSphereShape(static_cast<f32>(1));
 init_body((world),cast<btCollisionShape, btSphereShape>((&sphere_shape)),static_cast<f32>(1),btVector3(static_cast<f32>(2),static_cast<f32>(10),static_cast<f32>(0)));
 {
-Range<i64> _magic = (Range<i64>{static_cast<i64>(static_cast<i64>(0LL)),static_cast<i64>(static_cast<i64>(10LL))});
+Range<i64> _magic = (Range<i64>{static_cast<i64>(static_cast<i64>(0LL)),static_cast<i64>(static_cast<i64>(150LL))});
 for (;;){
 Optional<i64> _magic_value = ((_magic).next());
 if ((!((_magic_value).has_value()))){

@@ -284,7 +284,7 @@ N_LIB_PRIVATE N_NIMCALL(void, main__bullet95demo_362)(void) {
 			{
 				while (1) {
 					NI TM__7YTlMRbv9cV9csqYLwtzOfoA_17;
-					if (!(res <= ((NI) 10))) goto LA9;
+					if (!(res <= ((NI) 150))) goto LA9;
 					i = res;
 					world.stepSimulation(0.016666668f, ((NI) 10));
 					printAll__bullet95demo_201(world);

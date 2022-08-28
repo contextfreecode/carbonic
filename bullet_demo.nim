@@ -97,7 +97,7 @@ proc main() =
     world.addRigidBody(
         initBody(mass = 1, origin = makeVector3(2, 10, 0), shape = sphereShape)
     )
-    for i in 1..10:
+    for i in 1..150:
         world.stepSimulation(1.0 / 60.0, 10)
         printAll(world)
 

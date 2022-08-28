@@ -67,7 +67,7 @@ function main() {
         mass: 1f32,
         origin: btVector3(2f32, 10f32, 0f32),
     )
-    for i in 0..10 {
+    for i in 0..150 {
         world.stepSimulation(time_step: 1f32 / 60f32, max_sub_steps: 10)
         print_all(&world)
     }

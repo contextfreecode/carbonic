@@ -84,7 +84,7 @@ auto main() -> int {
     auto& world = dynamicsWorldStore.world;
     world.setGravity({0, -10, 0});
     // Track shapes separately for potential reuse.
-    auto groundShape = btBoxShape({0, 50, 50});
+    auto groundShape = btBoxShape({50, 50, 50});
     auto sphereShape = btSphereShape(1);
     world.addRigidBody(init_body({
         .mass = 0,
@@ -97,7 +97,7 @@ auto main() -> int {
         .shape = &sphereShape,
     }));
     /// Run simulation.
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 150; i++) {
         world.stepSimulation(1.f / 60.f, 10);
         print_all(world);
     }
