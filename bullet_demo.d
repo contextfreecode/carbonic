@@ -3,6 +3,7 @@ import std.stdio;
 extern(C++) {
     struct btVector3 {
         float[4] m_floats;
+        // final float getX(); // No good because header-only.
     }
 
     btVector3 vector3Make(float x, float y, float z);
